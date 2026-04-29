@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="StudySpace - your personal dashboard for notes, tools, and interactive learning simulations.">
+  <meta name="keywords" content="study, geometry, math, spatial reasoning, 3D, engineering, notes, flashcards">
+  <title>StudySpace - Learning Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- BORDERLESS FULLSCREEN OVERLAY -->
+  <div id="overlay" style="display:none">
+    <div class="overlay-bar">
+      <span>3D Spatial Reasoning Lab</span>
+      <button onclick="exitOverlay()">✕ Exit</button>
+    </div>
+    <iframe id="overlay-frame" src="" allowfullscreen></iframe>
+  </div>
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">S</div>
+      <strong>StudySpace</strong>
+    </div>
+    <nav>
+      <a href="#" onclick="showSection('dashboard')">Dashboard</a>
+      <a href="#" onclick="showSection('notes')">Notes</a>
+      <a href="#" onclick="showSection('flashcards')">Flashcards</a>
+      <a href="#" onclick="showSection('calculator')">Calculator</a>
+      <a href="#" onclick="showSection('sim')">Simulation</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <div id="sec-dashboard">
+      <div class="stats">
+        <div class="stat"><label>Study streak</label><span>7 days</span></div>
+        <div class="stat"><label>Topics covered</label><span>14</span></div>
+        <div class="stat"><label>Time today</label><span id="time-today">0h 00m</span></div>
+        <div class="stat"><label>Flashcard score</label><span id="fc-score-stat">—</span></div>
+      </div>
+
+      <div class="main-grid">
+        <div class="card">
+          <h2>Quick notes</h2>
+          <textarea id="quick-note" placeholder="Jot something down..." oninput="saveNote()"></textarea>
+        </div>
+        <div class="sidebar">
+          <div class="card">
+            <h2>Study timer</h2>
+            <div id="timer">25:00</div>
+            <div class="timer-mode">
+              <button class="mode-btn active" onclick="setMode(25,'Work')">Work</button>
+              <button class="mode-btn" onclick="setMode(5,'Short break')">Short</button>
+              <button class="mode-btn" onclick="setMode(15,'Long break')">Long</button>
+            </div>
+            <div class="btn-row">
+              <button onclick="toggleTimer()" id="tbtn">Start</button>
+              <button onclick="resetTimer()">Reset</button>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Today's tasks</h2>
+            <div class="tasks" id="task-list"></div>
+            <div class="task-add">
+              <input type="text" id="new-task" placeholder="Add a task..." maxlength="60" onkeydown="if(event.key==='Enter')addTask()">
+              <button onclick="addTask()">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card notes-card">
+        <h2>Chapter 7 — Quick review notes</h2>
+        <div class="notes-grid">
+          <div class="note"><strong>Geometry basics</strong>Points, lines, planes, angles — parallel and perpendicular relationships form the foundation of spatial math.</div>
+          <div class="note"><strong>3D shapes</strong>Cubes, prisms, pyramids — volume and surface area formulas. Key for engineering and architecture.</div>
+          <div class="note"><strong>Coordinate systems</strong>x, y, z axes; plotting in 3D space; distance formula between two points.</div>
+          <div class="note"><strong>Transformations</strong>Rotation, reflection, translation, and dilation — how shapes move and scale in 2D and 3D space.</div>
+          <div class="note"><strong>Vectors</strong>Direction + magnitude. Used in physics and engineering to describe forces, velocity, and displacement.</div>
+          <div class="note"><strong>Cross sections</strong>What you get when you slice a 3D shape — circles from spheres, rectangles from prisms.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div id="sec-notes" style="display:none">
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h2>My notes</h2>
+          <button onclick="newNote()" style="flex:none;padding:6px 14px;background:#185FA5;color:white;border:none;border-radius:6px;cursor:pointer;font-size:13px">+ New note</button>
+        </div>
+        <div id="notes-list" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+      <div class="card" id="note-editor" style="display:none">
+        <input type="text" id="note-title" placeholder="Note title..." style="width:100%;border:none;border-bottom:1px solid #e0e0e0;padding:6px 0;font-size:16px;font-weight:600;margin-bottom:12px;outline:none">
+        <textarea id="note-body" placeholder="Write your notes here..." style="width:100%;height:300px;border:1px solid #e8e8e8;border-radius:6px;padding:10px;font-size:14px;resize:vertical;outline:none" oninput="autoSaveNote()"></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button onclick="saveNoteEntry()" style="flex:none;padding:6px 14px;background:#185FA5;color:white;border:none;border-radius:6px;cursor:pointer;font-size:13px">Save</button>
+          <button onclick="deleteNote()" style="flex:none;padding:6px 14px;background:#fef2f2;color:#c0392b;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-size:13px">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLASHCARDS -->
+    <div id="sec-flashcards" style="display:none">
+      <div class="main-grid">
+        <div class="card">
+          <h2>Flashcard practice</h2>
+          <div id="fc-area">
+            <div id="fc-card" onclick="flipCard()">
+              <div id="fc-inner">
+                <div id="fc-front">Click a deck to start</div>
+                <div id="fc-back"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:14px;justify-content:center">
+              <button onclick="fcAnswer(false)" id="fc-wrong" style="display:none;background:#fef2f2;color:#c0392b;border:1px solid #fca5a5;border-radius:6px;padding:8px 20px;cursor:pointer;font-size:13px">✗ Wrong</button>
+              <button onclick="fcNext()" id="fc-next" style="display:none;background:#185FA5;color:white;border:none;border-radius:6px;padding:8px 20px;cursor:pointer;font-size:13px">Next →</button>
+              <button onclick="fcAnswer(true)" id="fc-right" style="display:none;background:#f0fdf4;color:#16a34a;border:1px solid #86efac;border-radius:6px;padding:8px 20px;cursor:pointer;font-size:13px">✓ Correct</button>
+            </div>
+            <div id="fc-progress" style="text-align:center;font-size:12px;color:#888;margin-top:10px"></div>
+          </div>
+        </div>
+        <div class="sidebar">
+          <div class="card">
+            <h2>Decks</h2>
+            <div style="display:flex;flex-direction:column;gap:8px" id="deck-list"></div>
+          </div>
+          <div class="card">
+            <h2>Add a card</h2>
+            <input type="text" id="fc-q" placeholder="Question" style="width:100%;border:1px solid #e8e8e8;border-radius:6px;padding:7px 10px;font-size:13px;margin-bottom:8px;outline:none">
+            <input type="text" id="fc-a" placeholder="Answer" style="width:100%;border:1px solid #e8e8e8;border-radius:6px;padding:7px 10px;font-size:13px;margin-bottom:8px;outline:none">
+            <select id="fc-deck" style="width:100%;border:1px solid #e8e8e8;border-radius:6px;padding:7px 10px;font-size:13px;margin-bottom:8px;outline:none">
+              <option value="Math">Math</option>
+              <option value="Science">Science</option>
+              <option value="History">History</option>
+              <option value="English">English</option>
+            </select>
+            <button onclick="addCard()" style="width:100%;padding:7px;background:#185FA5;color:white;border:none;border-radius:6px;font-size:13px;cursor:pointer">Add card</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALCULATOR -->
+    <div id="sec-calculator" style="display:none">
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div class="card" style="flex:1;min-width:260px">
+          <h2>Calculator</h2>
+          <input type="text" id="calc-display" readonly style="width:100%;text-align:right;font-size:24px;font-weight:600;border:none;border-bottom:1px solid #e0e0e0;padding:8px 0;margin-bottom:14px;outline:none;background:transparent">
+          <div class="calc-grid">
+            <button class="calc-btn gray" onclick="calcClear()">C</button>
+            <button class="calc-btn gray" onclick="calcDel()">⌫</button>
+            <button class="calc-btn gray" onclick="calcInput('%')">%</button>
+            <button class="calc-btn blue" onclick="calcInput('/')">÷</button>
+            <button class="calc-btn" onclick="calcInput('7')">7</button>
+            <button class="calc-btn" onclick="calcInput('8')">8</button>
+            <button class="calc-btn" onclick="calcInput('9')">9</button>
+            <button class="calc-btn blue" onclick="calcInput('*')">×</button>
+            <button class="calc-btn" onclick="calcInput('4')">4</button>
+            <button class="calc-btn" onclick="calcInput('5')">5</button>
+            <button class="calc-btn" onclick="calcInput('6')">6</button>
+            <button class="calc-btn blue" onclick="calcInput('-')">−</button>
+            <button class="calc-btn" onclick="calcInput('1')">1</button>
+            <button class="calc-btn" onclick="calcInput('2')">2</button>
+            <button class="calc-btn" onclick="calcInput('3')">3</button>
+            <button class="calc-btn blue" onclick="calcInput('+')">+</button>
+            <button class="calc-btn" onclick="calcInput('0')" style="grid-column:span 2">0</button>
+            <button class="calc-btn" onclick="calcInput('.')">.</button>
+            <button class="calc-btn blue" onclick="calcEqual()">=</button>
+          </div>
+        </div>
+        <div class="card" style="flex:1;min-width:260px">
+          <h2>Unit converter</h2>
+          <select id="conv-type" onchange="updateConv()" style="width:100%;border:1px solid #e8e8e8;border-radius:6px;padding:7px;margin-bottom:12px;font-size:13px;outline:none">
+            <option value="length">Length</option>
+            <option value="weight">Weight</option>
+            <option value="temp">Temperature</option>
+            <option value="area">Area</option>
+          </select>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="flex:1">
+              <input type="number" id="conv-in" placeholder="0" oninput="convert()" style="width:100%;border:1px solid #e8e8e8;border-radius:6px;padding:7px;font-size:14px;outline:none">
+              <select id="conv-from" onchange="convert()" style="width:100%;border:1px solid #e8e8e8;border-radius:6px;padding:7px;margin-top:6px;font-size:13px;outline:none"></select>
+            </div>
+            <div style="font-size:20px;color:#888">→</div>
+            <div style="flex:1">
+              <input type="number" id="conv-out" readonly placeholder="0" style="width:100%;border:1px solid #e8e8e8;border-radius:6px;padding:7px;font-size:14px;outline:none;background:#f9f9f6">
+              <select id="conv-to" onchange="convert()" style="width:100%;border:1px solid #e8e8e8;border-radius:6px;padding:7px;margin-top:6px;font-size:13px;outline:none"></select>
+            </div>
+          </div>
+          <div style="margin-top:20px">
+            <h2 style="margin-bottom:10px">Formula sheet</h2>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#444">
+              <div class="formula">Area of circle = πr²</div>
+              <div class="formula">Volume of sphere = (4/3)πr³</div>
+              <div class="formula">Pythagorean theorem = a² + b² = c²</div>
+              <div class="formula">Distance = speed × time</div>
+              <div class="formula">F = ma (Newton's 2nd law)</div>
+              <div class="formula">E = mc² (Mass-energy equivalence)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIMULATION -->
+    <div id="sec-sim" style="display:none">
+      <div class="main-grid">
+        <div class="card sim-card">
+          <div class="sim-header">
+            <h2>3D Spatial Reasoning Lab</h2>
+            <button id="fs-btn" onclick="goOverlay()" style="display:none">⤢ Expand</button>
+          </div>
+          <div id="gate">
+            <div class="gate-inner">
+              <div class="gate-icon">🔒</div>
+              <p class="gate-label">Enter access code to launch simulation</p>
+              <div class="gate-row">
+                <input type="password" id="code-input" placeholder="Access code" maxlength="20" onkeydown="if(event.key==='Enter')unlock()">
+                <button onclick="unlock()">Launch</button>
+              </div>
+              <p id="gate-error"></p>
+            </div>
+          </div>
+          <iframe id="sim-frame" src="" allowfullscreen style="display:none"></iframe>
+          <p class="sim-desc">Practice spatial thinking and 3D construction — a core skill in architecture, engineering, and physics.</p>
+        </div>
+        <div class="sidebar">
+          <div class="card">
+            <h2>About this lab</h2>
+            <p style="font-size:13px;color:#555;line-height:1.6">This simulation develops spatial reasoning skills used in engineering, architecture, and physics. Research shows hands-on 3D construction improves geometric understanding significantly.</p>
+          </div>
+          <div class="card">
+            <h2>Learning objectives</h2>
+            <ul style="font-size:13px;color:#555;line-height:2;padding-left:16px">
+              <li>Understand 3D coordinate space</li>
+              <li>Practice scale and proportion</li>
+              <li>Build geometric structures</li>
+              <li>Develop spatial memory</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+<script>
+// ── SECTION NAV ──
+function showSection(name) {
+  ['dashboard','notes','flashcards','calculator','sim'].forEach(s => {
+    document.getElementById('sec-'+s).style.display = s===name ? 'block' : 'none';
+  });
+  if (name === 'notes') renderNotes();
+  if (name === 'flashcards') renderDecks();
+  if (name === 'calculator') { updateConv(); }
+}
+
+// ── CLOCK ──
+let totalSeconds = 0;
+setInterval(() => {
+  totalSeconds++;
+  const h = Math.floor(totalSeconds/3600);
+  const m = Math.floor((totalSeconds%3600)/60);
+  document.getElementById('time-today').textContent = h+'h '+m.toString().padStart(2,'0')+'m';
+}, 1000);
+
+// ── TIMER ──
+let s = 1500, running = false, iv;
+function setMode(mins, label) {
+  clearInterval(iv); running = false; s = mins*60;
+  document.getElementById('tbtn').textContent = 'Start';
+  draw();
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+function toggleTimer() {
+  running = !running;
+  document.getElementById('tbtn').textContent = running ? 'Pause' : 'Resume';
+  if (running) iv = setInterval(() => { if(s>0){s--;draw();}else{clearInterval(iv);running=false;document.getElementById('tbtn').textContent='Start';} }, 1000);
+  else clearInterval(iv);
+}
+function resetTimer() { clearInterval(iv); running=false; s=1500; document.getElementById('tbtn').textContent='Start'; draw(); }
+function draw() { document.getElementById('timer').textContent = Math.floor(s/60).toString().padStart(2,'0')+':'+(s%60).toString().padStart(2,'0'); }
+
+// ── TASKS ──
+let tasks = JSON.parse(localStorage.getItem('tasks')||'["Read Ch. 7 notes","Review flashcards","Spatial lab (30 min)"]');
+function renderTasks() {
+  const list = document.getElementById('task-list');
+  list.innerHTML = '';
+  tasks.forEach((t,i) => {
+    const el = document.createElement('label');
+    el.innerHTML = `<input type="checkbox"> <span>${t}</span> <button onclick="removeTask(${i})" style="margin-left:auto;background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;flex:none">✕</button>`;
+    el.style.cssText = 'display:flex;align-items:center;gap:8px;font-size:13px;color:#444;cursor:pointer';
+    list.appendChild(el);
+  });
+}
+function addTask() {
+  const inp = document.getElementById('new-task');
+  if (!inp.value.trim()) return;
+  tasks.push(inp.value.trim()); inp.value='';
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  renderTasks();
+}
+function removeTask(i) { tasks.splice(i,1); localStorage.setItem('tasks',JSON.stringify(tasks)); renderTasks(); }
+renderTasks();
+
+// ── QUICK NOTE ──
+document.getElementById('quick-note').value = localStorage.getItem('quicknote')||'';
+function saveNote() { localStorage.setItem('quicknote', document.getElementById('quick-note').value); }
+
+// ── NOTES SECTION ──
+let notesDB = JSON.parse(localStorage.getItem('notesDB')||'[]');
+let activeNote = null;
+function renderNotes() {
+  const list = document.getElementById('notes-list');
+  list.innerHTML = '';
+  if (!notesDB.length) { list.innerHTML = '<p style="font-size:13px;color:#888">No notes yet. Click "+ New note" to create one.</p>'; return; }
+  notesDB.forEach((n,i) => {
+    const el = document.createElement('div');
+    el.className = 'note-entry';
+    el.innerHTML = `<strong>${n.title||'Untitled'}</strong><span>${n.body.slice(0,60)||'Empty'}...</span>`;
+    el.onclick = () => openNote(i);
+    list.appendChild(el);
+  });
+}
+function newNote() {
+  activeNote = null;
+  document.getElementById('note-title').value='';
+  document.getElementById('note-body').value='';
+  document.getElementById('note-editor').style.display='block';
+}
+function openNote(i) {
+  activeNote = i;
+  document.getElementById('note-title').value = notesDB[i].title;
+  document.getElementById('note-body').value = notesDB[i].body;
+  document.getElementById('note-editor').style.display='block';
+}
+function saveNoteEntry() {
+  const t = document.getElementById('note-title').value||'Untitled';
+  const b = document.getElementById('note-body').value;
+  if (activeNote === null) notesDB.push({title:t,body:b});
+  else { notesDB[activeNote].title=t; notesDB[activeNote].body=b; }
+  localStorage.setItem('notesDB',JSON.stringify(notesDB));
+  renderNotes();
+}
+function deleteNote() {
+  if (activeNote !== null) notesDB.splice(activeNote,1);
+  localStorage.setItem('notesDB',JSON.stringify(notesDB));
+  document.getElementById('note-editor').style.display='none';
+  activeNote=null; renderNotes();
+}
+function autoSaveNote() { saveNoteEntry(); }
+
+// ── FLASHCARDS ──
+let cards = JSON.parse(localStorage.getItem('fcCards')||JSON.stringify([
+  {q:'What is the area of a circle?',a:'πr²',deck:'Math'},
+  {q:'What is the Pythagorean theorem?',a:'a² + b² = c²',deck:'Math'},
+  {q:'What is Newton\'s 2nd law?',a:'F = ma',deck:'Science'},
+  {q:'What is photosynthesis?',a:'Plants convert sunlight + CO₂ + water into glucose and oxygen',deck:'Science'},
+]));
+let fcIndex=0, fcFlipped=false, fcCorrect=0, fcTotal=0, activeDeck=null;
+function renderDecks() {
+  const decks = [...new Set(cards.map(c=>c.deck))];
+  const list = document.getElementById('deck-list');
+  list.innerHTML='';
+  decks.forEach(d => {
+    const count = cards.filter(c=>c.deck===d).length;
+    const btn = document.createElement('button');
+    btn.textContent = `${d} (${count})`;
+    btn.style.cssText='text-align:left;padding:8px 12px;border:1px solid #e8e8e8;border-radius:6px;background:white;cursor:pointer;font-size:13px';
+    btn.onclick = () => startDeck(d);
+    list.appendChild(btn);
+  });
+}
+function startDeck(d) {
+  activeDeck = cards.filter(c=>c.deck===d);
+  fcIndex=0; fcCorrect=0; fcTotal=0; fcFlipped=false;
+  showCard();
+}
+function showCard() {
+  if (!activeDeck||fcIndex>=activeDeck.length) {
+    document.getElementById('fc-front').textContent = fcIndex>0?`Done! ${fcCorrect}/${fcTotal} correct`:'Pick a deck';
+    document.getElementById('fc-back').textContent='';
+    document.getElementById('fc-wrong').style.display='none';
+    document.getElementById('fc-right').style.display='none';
+    document.getElementById('fc-next').style.display='none';
+    if (fcTotal>0) { const pct=Math.round(fcCorrect/fcTotal*100); document.getElementById('fc-score-stat').textContent=pct+'%'; localStorage.setItem('fcScore',pct); }
+    return;
+  }
+  const c = activeDeck[fcIndex];
+  document.getElementById('fc-front').textContent = c.q;
+  document.getElementById('fc-back').textContent = c.a;
+  document.getElementById('fc-inner').classList.remove('flipped');
+  document.getElementById('fc-wrong').style.display='none';
+  document.getElementById('fc-right').style.display='none';
+  document.getElementById('fc-next').style.display='none';
+  document.getElementById('fc-progress').textContent = (fcIndex+1)+' / '+activeDeck.length;
+  fcFlipped=false;
+}
+function flipCard() {
+  if (!activeDeck||fcIndex>=activeDeck.length) return;
+  fcFlipped=!fcFlipped;
+  document.getElementById('fc-inner').classList.toggle('flipped',fcFlipped);
+  if (fcFlipped) {
+    document.getElementById('fc-wrong').style.display='inline-block';
+    document.getElementById('fc-right').style.display='inline-block';
+    document.getElementById('fc-next').style.display='none';
+  }
+}
+function fcAnswer(correct) {
+  fcTotal++; if(correct) fcCorrect++;
+  document.getElementById('fc-wrong').style.display='none';
+  document.getElementById('fc-right').style.display='none';
+  document.getElementById('fc-next').style.display='inline-block';
+}
+function fcNext() { fcIndex++; showCard(); }
+function addCard() {
+  const q=document.getElementById('fc-q').value.trim();
+  const a=document.getElementById('fc-a').value.trim();
+  const d=document.getElementById('fc-deck').value;
+  if(!q||!a) return;
+  cards.push({q,a,deck:d});
+  localStorage.setItem('fcCards',JSON.stringify(cards));
+  document.getElementById('fc-q').value='';
+  document.getElementById('fc-a').value='';
+  renderDecks();
+}
+const savedScore = localStorage.getItem('fcScore');
+if (savedScore) document.getElementById('fc-score-stat').textContent = savedScore+'%';
+
+// ── CALCULATOR ──
+let calcVal = '';
+function calcInput(v) { calcVal+=v; document.getElementById('calc-display').value=calcVal; }
+function calcClear() { calcVal=''; document.getElementById('calc-display').value=''; }
+function calcDel() { calcVal=calcVal.slice(0,-1); document.getElementById('calc-display').value=calcVal; }
+function calcEqual() {
+  try { calcVal=String(eval(calcVal.replace('%','/100'))); document.getElementById('calc-display').value=calcVal; }
+  catch { document.getElementById('calc-display').value='Error'; calcVal=''; }
+}
+
+// ── UNIT CONVERTER ──
+const convData = {
+  length: { units:['Meters','Kilometers','Miles','Feet','Inches','Centimeters'], toBase:[1,1000,1609.34,0.3048,0.0254,0.01] },
+  weight: { units:['Kilograms','Grams','Pounds','Ounces','Tons'], toBase:[1,0.001,0.453592,0.0283495,1000] },
+  temp: { units:['Celsius','Fahrenheit','Kelvin'], toBase:null },
+  area: { units:['Square meters','Square km','Square miles','Acres','Hectares'], toBase:[1,1e6,2589988.11,4046.86,10000] },
+};
+function updateConv() {
+  const type = document.getElementById('conv-type').value;
+  const data = convData[type];
+  ['conv-from','conv-to'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = data.units.map(u=>`<option>${u}</option>`).join('');
+  });
+  document.getElementById('conv-to').selectedIndex=1;
+}
+function convert() {
+  const type = document.getElementById('conv-type').value;
+  const val = parseFloat(document.getElementById('conv-in').value);
+  if (isNaN(val)) return;
+  const fi = document.getElementById('conv-from').selectedIndex;
+  const ti = document.getElementById('conv-to').selectedIndex;
+  let result;
+  if (type==='temp') {
+    const c = fi===0?val:fi===1?(val-32)*5/9:val-273.15;
+    result = ti===0?c:ti===1?c*9/5+32:c+273.15;
+  } else {
+    const base = val * convData[type].toBase[fi];
+    result = base / convData[type].toBase[ti];
+  }
+  document.getElementById('conv-out').value = parseFloat(result.toFixed(6));
+}
+
+// ── GATE ──
+const SECRET = 'studio7';
+let attempts = 0;
+function unlock() {
+  const val = document.getElementById('code-input').value;
+  if (val === SECRET) {
+    document.getElementById('gate').style.display='none';
+    const frame = document.getElementById('sim-frame');
+    frame.src='tools/simulation/index.html';
+    frame.style.display='block';
+    document.getElementById('fs-btn').style.display='inline-block';
+  } else {
+    attempts++;
+    const inp = document.getElementById('code-input');
+    const err = document.getElementById('gate-error');
+    inp.classList.add('shake');
+    inp.value='';
+    err.textContent = attempts>=3 ? `Incorrect. ${attempts} failed attempts.` : 'Incorrect code. Try again.';
+    setTimeout(()=>inp.classList.remove('shake'),500);
+    setTimeout(()=>err.textContent='',3000);
+  }
+}
+
+// ── BORDERLESS FULLSCREEN ──
+function goOverlay() {
+  const overlay = document.getElementById('overlay');
+  const src = document.getElementById('sim-frame').src;
+  document.getElementById('overlay-frame').src = src;
+  overlay.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function exitOverlay() {
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('overlay-frame').src='';
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') exitOverlay(); });
+</script>
+</body>
+</html>
