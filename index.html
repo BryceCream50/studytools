@@ -29,7 +29,6 @@
       <a href="#" onclick="showSection('notes')">Notes</a>
       <a href="#" onclick="showSection('flashcards')">Flashcards</a>
       <a href="#" onclick="showSection('calculator')">Calculator</a>
-      <a href="#" onclick="showSection('sim')">Simulation</a>
     </nav>
   </header>
 
@@ -83,6 +82,43 @@
           <div class="note"><strong>Transformations</strong>Rotation, reflection, translation, and dilation — how shapes move and scale in 2D and 3D space.</div>
           <div class="note"><strong>Vectors</strong>Direction + magnitude. Used in physics and engineering to describe forces, velocity, and displacement.</div>
           <div class="note"><strong>Cross sections</strong>What you get when you slice a 3D shape — circles from spheres, rectangles from prisms.</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="card sim-card">
+          <div class="sim-header">
+            <h2>3D Spatial Reasoning Lab</h2>
+            <button id="fs-btn" onclick="goOverlay()" style="display:none">⤢ Expand</button>
+          </div>
+          <div id="gate">
+            <div class="gate-inner">
+              <div class="gate-icon">🔒</div>
+              <p class="gate-label">Enter access code to launch simulation</p>
+              <div class="gate-row">
+                <input type="password" id="code-input" placeholder="Access code" maxlength="20" onkeydown="if(event.key==='Enter')unlock()">
+                <button onclick="unlock()">Launch</button>
+              </div>
+              <p id="gate-error"></p>
+            </div>
+          </div>
+          <iframe id="sim-frame" src="" allowfullscreen style="display:none"></iframe>
+          <p class="sim-desc">Practice spatial thinking and 3D construction — a core skill in architecture, engineering, and physics.</p>
+        </div>
+        <div class="sidebar">
+          <div class="card">
+            <h2>About this lab</h2>
+            <p style="font-size:13px;color:#555;line-height:1.6">This simulation develops spatial reasoning skills used in engineering, architecture, and physics. Research shows hands-on 3D construction improves geometric understanding significantly.</p>
+          </div>
+          <div class="card">
+            <h2>Learning objectives</h2>
+            <ul style="font-size:13px;color:#555;line-height:2;padding-left:16px">
+              <li>Understand 3D coordinate space</li>
+              <li>Practice scale and proportion</li>
+              <li>Build geometric structures</li>
+              <li>Develop spatial memory</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -209,52 +245,12 @@
       </div>
     </div>
 
-    <!-- SIMULATION -->
-    <div id="sec-sim" style="display:none">
-      <div class="main-grid">
-        <div class="card sim-card">
-          <div class="sim-header">
-            <h2>3D Spatial Reasoning Lab</h2>
-            <button id="fs-btn" onclick="goOverlay()" style="display:none">⤢ Expand</button>
-          </div>
-          <div id="gate">
-            <div class="gate-inner">
-              <div class="gate-icon">🔒</div>
-              <p class="gate-label">Enter access code to launch simulation</p>
-              <div class="gate-row">
-                <input type="password" id="code-input" placeholder="Access code" maxlength="20" onkeydown="if(event.key==='Enter')unlock()">
-                <button onclick="unlock()">Launch</button>
-              </div>
-              <p id="gate-error"></p>
-            </div>
-          </div>
-          <iframe id="sim-frame" src="" allowfullscreen style="display:none"></iframe>
-          <p class="sim-desc">Practice spatial thinking and 3D construction — a core skill in architecture, engineering, and physics.</p>
-        </div>
-        <div class="sidebar">
-          <div class="card">
-            <h2>About this lab</h2>
-            <p style="font-size:13px;color:#555;line-height:1.6">This simulation develops spatial reasoning skills used in engineering, architecture, and physics. Research shows hands-on 3D construction improves geometric understanding significantly.</p>
-          </div>
-          <div class="card">
-            <h2>Learning objectives</h2>
-            <ul style="font-size:13px;color:#555;line-height:2;padding-left:16px">
-              <li>Understand 3D coordinate space</li>
-              <li>Practice scale and proportion</li>
-              <li>Build geometric structures</li>
-              <li>Develop spatial memory</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </main>
 
 <script>
 // ── SECTION NAV ──
 function showSection(name) {
-  ['dashboard','notes','flashcards','calculator','sim'].forEach(s => {
+  ['dashboard','notes','flashcards','calculator'].forEach(s => {
     document.getElementById('sec-'+s).style.display = s===name ? 'block' : 'none';
   });
   if (name === 'notes') renderNotes();
